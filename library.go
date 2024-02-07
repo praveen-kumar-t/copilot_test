@@ -70,7 +70,7 @@ func (l *library) GetAllBooks() ([]Book, error) {
 	return allBooks, nil
 }
 
-func GetAllRecentFictionBooks(l library) []Book {
+func GetAllRecentFictionBooks(l library, ratingService *BookRatingService) []Book {
 	var fictionBooks []Book
 
 	books, err := l.repository.GetAllLines()
@@ -90,7 +90,7 @@ func GetAllRecentFictionBooks(l library) []Book {
 
 	for _, book := range allBooks {
 		if book.Genre == "Fiction" {
-			if book.Pages > 300 && book.Published.Year() > 2020 {
+			if book.Pages > 300 && book.Published.Year() > 2020 && ratingService.GetBookRating(&book) > 3 {
 				fictionBooks = append(fictionBooks, book)
 			}
 		}

@@ -293,3 +293,47 @@ func TestGetAllRecentFictionBooks(t *testing.T) {
 		t.Errorf("Expected books %v, got %v", expectedBooks, fictionBooks)
 	}
 }
+
+// write a testcase to test the highlighted text in this method:ratingService.GetBookRating(&book) > 3
+func TestGetAllRecentFictionBooksRating(t *testing.T) {
+	// Create a mock library
+	mockLibrary := createMockLibrary()
+
+	// Mock the GetAllLines method to return some lines
+	mockLibrary.repository.(*mockDatabase).GetAllLinesFunc = func() ([]string, error) {
+		return []string{
+			"ISBN:1234567890,Title:Book 1,Genre:Fiction,Pages:400,Published:2021-01-01",
+			"ISBN:0987654321,Title:Book 2,Genre:Fiction,Pages:200,Published:2022-02-02",
+			"ISBN:9876543210,Title:Book 3,Genre:Non-Fiction,Pages:500,Published:2023-03-03",
+		}, nil
+	}
+
+	// Mock the GetBookRating method to return a rating of 4
+	mockLibrary.ratingService.(*mockRatingService).GetBookRatingFunc = func(book *Book) int {
+		return 4
+	}
+
+	// Call the GetAllRecentFictionBooks method
+	fictionBooks := GetAllRecentFictionBooks(mockLibrary)
+
+	// Check if the returned books match the expected books
+	expectedBooks := []Book{
+		{
+			ISBN:      "1234567890",
+			Title:     "Book 1",
+			Genre:     "Fiction",
+			Pages:     400,
+			Published: time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC),
+		},
+		{
+			ISBN:      "0987654321",
+			Title:     "Book 2",
+			Genre:     "Fiction",
+			Pages:     200,
+			Published: time.Date(2022, 2, 2, 0, 0, 0, 0, time.UTC),
+		},
+	}
+	if !reflect.DeepEqual(fictionBooks, expectedBooks) {
+		t.Errorf("Expected books %v, got %v", expectedBooks, fictionBooks)
+	}
+}
